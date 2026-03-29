@@ -285,14 +285,16 @@ class LiveCellDatasetFast(Dataset):
 
     def __getitem__(self, idx):
         img_id = self.ids[idx]
-        data = np.load(self.precomputed_dir / f"{img_id}.npz")
 
-        img_r = data['image']
-        edge_r = data['edge']
-        mask_r = data['mask']
-        bnd_r = data['boundary']
-        wgt_r = data['weight_map']
-        complexity = float(data['complexity'])
+        # CRITICAL: use context manager to close NpzFile and free memory.
+        # Without this, each np.load() leaks ~1MB+ causing OOM after a few epochs.
+        with np.load(self.precomputed_dir / f"{img_id}.npz") as data:
+            img_r = data['image'].copy()
+            edge_r = data['edge'].copy()
+            mask_r = data['mask'].copy()
+            bnd_r = data['boundary'].copy()
+            wgt_r = data['weight_map'].copy()
+            complexity = float(data['complexity'])
 
         # Augment (image + mask + boundary + weight map together)
         if self.augment is not None:
