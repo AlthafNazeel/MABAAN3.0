@@ -7,6 +7,7 @@ multi-criteria checkpointing, and complexity logging.
 """
 
 import os
+import gc
 import random
 import numpy as np
 import torch
@@ -249,6 +250,9 @@ def train_epoch_v2(model, dl, criterion, optimizer, device,
         total_iou += iou_b * bs
         n += bs
 
+        # Free batch memory
+        del inp, targets, out, losses
+
     return total_loss / n, total_dice / n, total_iou / n
 
 
@@ -287,6 +291,9 @@ def val_epoch_v2(model, dl, criterion, device, threshold=0.5):
         total_iou += iou_b * bs
         total_bf1 += bf1_b * bs
         n += bs
+
+        # Free batch memory
+        del inp, targets, out, losses, pred_np, tgt_np
 
     return total_loss / n, total_dice / n, total_iou / n, total_bf1 / n
 
@@ -353,6 +360,11 @@ def train_model_v2(model, dataloaders, criterion, optimizer, scheduler, device,
         val_loss, val_dice, val_iou, val_bf1 = val_epoch_v2(
             model, dataloaders['val'], criterion, device, threshold=best_thr,
         )
+
+        # --- Memory cleanup between epochs ---
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
 
         if scheduler is not None:
             from torch.optim.lr_scheduler import ReduceLROnPlateau
