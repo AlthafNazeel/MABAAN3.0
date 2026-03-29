@@ -10,7 +10,7 @@ class Config:
     DATA_PATH = "/kaggle/input/datasets/althafnazeell/livecell"
     IMG_SIZE = 256
     MAX_SAMPLES = None
-    NUM_WORKERS = 0
+    NUM_WORKERS = 4
 
     # Model
     ENCODER = "resnet34"
@@ -19,7 +19,7 @@ class Config:
     ATTENTION_REDUCTION = 16
 
     # Training
-    BATCH_SIZE = 4
+    BATCH_SIZE = 16
     NUM_EPOCHS = 30
     LEARNING_RATE = 1e-4
     WEIGHT_DECAY = 1e-4
