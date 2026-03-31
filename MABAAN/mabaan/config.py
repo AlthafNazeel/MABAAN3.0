@@ -20,7 +20,7 @@ class Config:
 
     # Training
     BATCH_SIZE = 16
-    NUM_EPOCHS = 2
+    NUM_EPOCHS = 30
     LEARNING_RATE = 1e-4
     WEIGHT_DECAY = 1e-4
     EARLY_STOPPING_PATIENCE = 10
